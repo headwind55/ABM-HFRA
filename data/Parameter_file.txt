@@ -1,0 +1,12 @@
+Para Value
+start_year 2015
+simulation_years 5
+a_y 0.1
+a_ds 0.5
+a_dh 0.4
+a_dm 0.3
+a_dd 0.2
+a_dd_f 0.6
+a_dh_e 0.75
+N_mesh 50.0
+N_mesh_in 30.0

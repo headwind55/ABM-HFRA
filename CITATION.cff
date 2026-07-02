@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use ABM-IRM, please cite this software repository and the related paper when available."
+title: "ABM-IRM: Agent-based model for intra-regional migration"
+type: software
+authors:
+  - family-names: Feng
+    given-names: Shi
+    affiliation: "Disaster Prevention Research Institute, Kyoto University"
+  - family-names: Tanaka
+    given-names: Tomohiro
+    affiliation: "Disaster Prevention Research Institute, Kyoto University"
+version: "0.1.0"
+date-released: "2026-07-02"
+license: "MIT"

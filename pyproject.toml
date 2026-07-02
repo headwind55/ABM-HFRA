@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "abm-irm"
+version = "0.1.0"
+description = "Agent-based model for intra-regional migration and counterfactual demographic simulation."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
