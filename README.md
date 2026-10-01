@@ -17,6 +17,13 @@ The release supports four independently controlled adaptation scenarios:
 Scenario 0 disables the two adaptation modules; flood exposure, damage, loss,
 and normal life-course migration remain active.
 
+## Authors
+
+- Shi Feng, Disaster Prevention Research Institute, Kyoto University
+- Tomohiro Tanaka, Disaster Prevention Research Institute, Kyoto University
+
+See [AUTHORS.md](AUTHORS.md) for repository authorship notes.
+
 ## Requirements
 
 - Python 3.10 or later
