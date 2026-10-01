@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/headwind55/ABM-IRM"
+Repository = "https://github.com/headwind55/ABM-HFRA"
 
 [tool.setuptools.packages.find]
 where = ["src"]
