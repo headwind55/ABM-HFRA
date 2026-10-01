@@ -1,0 +1,4 @@
+﻿"demographic_case","fertility","mortality","description"
+"Medium_case","medium","medium","Middle fertility and middle mortality"
+"LowMortality_HighFertility_case","high","low","High fertility and low mortality"
+"HighMortality_LowFertility_case","low","high","Low fertility and high mortality"

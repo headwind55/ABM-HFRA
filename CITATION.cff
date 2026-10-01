@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use ABM-IRM, please cite this software repository and the related paper when available."
-title: "ABM-IRM: Agent-based model for intra-regional migration"
+message: "If you use ABM-HFRA, please cite this software repository and the related paper when available."
+title: "ABM-HFRA: Household flood-risk analysis application of ABM-IRM"
 type: software
 authors:
   - family-names: Feng
@@ -9,6 +9,7 @@ authors:
   - family-names: Tanaka
     given-names: Tomohiro
     affiliation: "Disaster Prevention Research Institute, Kyoto University"
-version: "0.1.0"
-date-released: "2026-07-02"
+version: "0.2.0"
+date-released: "2026-10-01"
 license: "MIT"
+repository-code: "https://github.com/headwind55/ABM-IRM"

@@ -20,7 +20,7 @@ year, _sim_years = read_sim_period()
 farmer_ratio = pd.read_table(data_path("Input", f"Mesh_ID_FARFOR_{year}.txt"), sep=" ")
 farmer_ratio["Mesh_ID1"] = farmer_ratio["Mesh_ID1"] + 1
 farmer_ratio["Ratio"] = farmer_ratio["IND_AGRFOR"] // 2
-
+print (farmer_ratio)
 
 def gender_assign(household):
     """Assign one male and one female to two-person households."""

@@ -1,6 +1,8 @@
-"""Annual demographic dynamics for death, birth, household formation, and migration."""
+﻿"""Annual demographic dynamics for death, birth, household formation, and migration."""
 
 from collections import Counter
+import os
+from pathlib import Path
 import random
 import sys
 
@@ -12,6 +14,7 @@ from .Abm_count_update import count_population_by_age_and_sex
 from .Abm_utility_normal import mesh_adm2, mesh_pair, utility_migration_normal
 from .paths import data_path
 
+SCENARIO = os.environ.get("ABM_IRM_DEMOGRAPHIC_CASE", "Medium_case")
 
 MAX_AGE = 100
 BIRTH_AGE_MIN = 20
@@ -31,17 +34,40 @@ MARRIAGE_AGE_GROUPS = (
 )
 LIFE_COURSE_MOVE_PROBABILITY = 0.02
 
-death_ratio = pd.read_table(data_path("Birth_Death_Rate", "Death_Rate_Age_2000-2020.txt"), delimiter=" ")
-birth_ratio = pd.read_table(data_path("Birth_Death_Rate", "Birth_Rate_Age_2000-2020.txt"), delimiter=" ")
-male_ratio = pd.read_table(data_path("Birth_Death_Rate", "Birth_Sex_ratio.txt"), delimiter=" ")
+def _single_rate_file(case_folder: Path, pattern: str) -> Path:
+    matches = sorted(case_folder.glob(pattern))
+    if len(matches) != 1:
+        raise FileNotFoundError(
+            f"Expected exactly one file matching {pattern!r} in {case_folder}, found {len(matches)}."
+        )
+    return matches[0]
 
+
+def _load_demographic_rates(case_name: str):
+    case_folder = data_path("Birth_Death_Rate", case_name)
+    if not case_folder.exists():
+        raise FileNotFoundError(f"Demographic case folder does not exist: {case_folder}")
+
+    male_path = _single_rate_file(case_folder, "Kumamoto_male_2020_2100_*_mortality.csv")
+    female_path = _single_rate_file(case_folder, "Kumamoto_female_2020_2100_*_mortality.csv")
+    fertility_path = _single_rate_file(case_folder, "Fertility_*_2020-2100.csv")
+    print(f"[Demographic case] {case_name}")
+    print(f"[Demographic rates] male={male_path.name} female={female_path.name} fertility={fertility_path.name}")
+    return pd.read_csv(male_path), pd.read_csv(female_path), pd.read_csv(fertility_path)
+
+
+male_death_ratio, female_death_ratio, birth_ratio = _load_demographic_rates(SCENARIO)
+
+# Future projection keeps the newborn male ratio fixed.
+male_ratio_yr = 0.513
 
 def _rng(rng):
     return random if rng is None else rng
 
 
 def _rate_year(year):
-    return min(year, 2020)
+    year_columns = [int(column) for column in male_death_ratio.columns if str(column).isdigit()]
+    return min(max(int(year), min(year_columns)), max(year_columns))
 
 
 def _members_by_age_and_sex(households, age):
@@ -62,12 +88,10 @@ def _remove_people(victims):
 
 
 def _planned_deaths(this_year, female_sim, male_sim):
-    death_ratio_sex = death_ratio[death_ratio["Year"] == _rate_year(this_year)]
-    female_death_ratio = death_ratio_sex[["Female"]]
-    male_death_ratio = death_ratio_sex["Male"]
-
-    planned_f = (female_sim.values.flatten() * female_death_ratio.T.values.flatten()).round().astype(int)
-    planned_m = (male_sim.values.flatten() * male_death_ratio.T.values.flatten()).round().astype(int)
+    m_death_ratio = male_death_ratio[str(_rate_year(this_year))]
+    f_death_ratio =female_death_ratio[str(_rate_year(this_year))]
+    planned_f = (female_sim.values.flatten() * f_death_ratio.T.values.flatten()).round().astype(int)
+    planned_m = (male_sim.values.flatten() * m_death_ratio.T.values.flatten()).round().astype(int)
     planned_f = pd.Series(planned_f, index=np.arange(0, MAX_AGE + 1))
     planned_m = pd.Series(planned_m, index=np.arange(0, MAX_AGE + 1))
     return planned_f, planned_m
@@ -149,7 +173,7 @@ def _select_mothers(Household, birth_female_in_age, rng):
 
 
 def _baby_sexes(this_year, total_birth_real, rng):
-    male_ratio_value = float(male_ratio.loc[male_ratio["year"] == _rate_year(this_year), "male_ratio"].values[0])
+    male_ratio_value = float(male_ratio_yr)
     new_male = int(round(total_birth_real * male_ratio_value))
     new_female = total_birth_real - new_male
     babies_sex = np.concatenate([np.repeat("F", new_female), np.repeat("M", new_male)])

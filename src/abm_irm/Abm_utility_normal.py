@@ -30,20 +30,42 @@ mesh_pair = pd.read_table(data_path('Utility_location_choice', 'mesh_pair.txt'),
 mesh_adm2 = pd.read_table(data_path('Utility_location_choice', 'adm2_mesh_id.txt'), sep=' ', dtype=float)
 
 
-def mesh_candidate_selection(hh):
-    """Sample candidate destination meshes inside and outside the current municipality."""
+def _allowed_data_meshes(allowed_mesh_ids):
+    """Convert optional ABM mesh-id constraints to data mesh codes."""
+    if allowed_mesh_ids is None:
+        return None
+    allowed_abm = {int(mesh_id) for mesh_id in allowed_mesh_ids}
+    rows = mesh_pair[mesh_pair['abm'].astype(int).isin(allowed_abm)]
+    allowed_data = set(rows['data'].astype(int))
+    if not allowed_data:
+        raise ValueError('Destination constraint does not contain any mesh in mesh_pair.txt')
+    return allowed_data
+
+
+def mesh_candidate_selection(hh, allowed_mesh_ids=None):
+    """Sample candidate destination meshes, optionally constrained by ABM mesh ids."""
+    allowed_data = _allowed_data_meshes(allowed_mesh_ids)
     mesh_num = mesh_pair[mesh_pair['abm'] == hh.mesh_id]['data'].iloc[0].astype(float)
     adm2_code = mesh_adm2.columns[mesh_adm2.isin([mesh_num]).any()][0]
     adm2_list = mesh_adm2[str(adm2_code)]
     mesh_same_adm2 = np.array(adm2_list)
     mesh_same_adm2 = mesh_same_adm2[~np.isnan(mesh_same_adm2)].astype(int)
     mesh_same_adm2 = np.delete(mesh_same_adm2, np.where(mesh_same_adm2 == mesh_num)).tolist()
-    mesh_candidate_1 = random.sample(mesh_same_adm2, N_mesh_in)
     mesh_other_adm2 = mesh_adm2.drop(columns=[adm2_code])
     mesh_other_adm2 = np.ravel(np.array(mesh_other_adm2))
     mesh_other_adm2 = mesh_other_adm2[~np.isnan(mesh_other_adm2)].astype(int).tolist()
-    mesh_candidate_2 = random.sample(mesh_other_adm2, N_mesh - N_mesh_in)
+
+    if allowed_data is not None:
+        mesh_same_adm2 = [mesh for mesh in mesh_same_adm2 if mesh in allowed_data]
+        mesh_other_adm2 = [mesh for mesh in mesh_other_adm2 if mesh in allowed_data]
+
+    n_same = min(N_mesh_in, len(mesh_same_adm2))
+    mesh_candidate_1 = random.sample(mesh_same_adm2, n_same) if n_same else []
+    n_other = min(N_mesh - len(mesh_candidate_1), len(mesh_other_adm2))
+    mesh_candidate_2 = random.sample(mesh_other_adm2, n_other) if n_other else []
     mesh_can = mesh_candidate_1 + mesh_candidate_2
+    if not mesh_can:
+        raise ValueError(f'No candidate destination mesh is available for household {hh.hh_id}')
     return (len(mesh_candidate_1), mesh_can)
 
 
@@ -128,13 +150,14 @@ def utility_function(house, elements):
     return u
 
 
-def utility_migration_normal(household):
-    """Move a household to the candidate mesh with the highest utility."""
-    num_same_adm2, mesh_candidate = mesh_candidate_selection(household)
+def utility_migration_normal(household, allowed_mesh_ids=None):
+    """Move a household to the highest-utility candidate mesh."""
+    num_same_adm2, mesh_candidate = mesh_candidate_selection(household, allowed_mesh_ids=allowed_mesh_ids)
     dis_one_mesh = distance_calculation(household.mesh_id, mesh_candidate)
     dis_one_mesh_cor = school_distance(household, dis_one_mesh)
     live_year_same = pd.DataFrame(np.repeat(np.nan, num_same_adm2))
-    live_year_other = pd.DataFrame(np.repeat(household.live_year, N_mesh - num_same_adm2))
+    num_other_adm2 = len(mesh_candidate) - num_same_adm2
+    live_year_other = pd.DataFrame(np.repeat(household.live_year, num_other_adm2))
     'redesign the live_year to [0,0,0,0,1,1,1,1...],\n    which will be multiply to a_y, indicating the activiation'
     live_year = pd.concat([live_year_same, live_year_other], axis=0).reset_index(drop=True).T
     live_year.columns = dis_one_mesh_cor.columns

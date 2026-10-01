@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "abm-irm"
-version = "0.1.0"
-description = "Agent-based model for intra-regional migration and counterfactual demographic simulation."
+name = "abm-hfra"
+version = "0.2.0"
+description = "ABM-IRM application for household flood-risk, insurance, and relocation analysis."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
@@ -17,8 +17,10 @@ classifiers = [
 dependencies = [
   "numpy",
   "pandas",
-  "scipy",
 ]
+
+[project.urls]
+Repository = "https://github.com/headwind55/ABM-IRM"
 
 [tool.setuptools.packages.find]
 where = ["src"]
