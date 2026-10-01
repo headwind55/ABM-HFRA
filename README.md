@@ -5,6 +5,17 @@ Kawabe Dam study area. It simulates demographic change, life-course migration,
 annual flood exposure and damage, insurance take-up, and disaster-induced
 relocation from 2020 to 2100.
 
+Disaster-relocation decisions are represented by a survey-based hierarchical
+Bayesian model. Households are classified into child, elderly, single, and
+other-adult life-stage groups, and their relocation probability combines a
+group-specific intercept with threat perception and the survey-derived CP and
+SP indicators. The accompanying dynamic threat-perception model
+initializes persistent household psychological profiles from survey responses
+and prior disaster experience. Threat perception then decays over time as a
+function of the survey-derived PA and SC characteristics and increases after
+flooding through a damage-dependent shock. The updated perception feeds back
+into the Bayesian relocation model for each flood event.
+
 The release supports four independently controlled adaptation scenarios:
 
 | Scenario | Insurance take-up | Disaster relocation |
