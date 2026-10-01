@@ -4,8 +4,8 @@ ABM-HFRA is an application of ABM-IRM for household flood-risk and adaptation
 analysis. It provides a framework for simulating demographic change,
 life-course migration, annual flood exposure and damage, insurance take-up,
 and disaster-induced relocation. The data and configuration distributed in
-this release demonstrate one application to the Kawabe Dam area in the Kuma
-River Basin, Kyushu, Japan, from 2020 to 2100; the framework can be adapted to
+this release demonstrate one application to the Kuma River Basin, Kyushu,
+Japan, from 2020 to 2100; the framework can be adapted to
 other study areas by preparing suitable local inputs and model parameters.
 
 Disaster-relocation decisions are represented by a survey-based hierarchical
